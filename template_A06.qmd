@@ -102,8 +102,8 @@ Extract the value `8162` (LeBron James points) in 2 different ways:
 - using names
 
 ```{r}
-player_info[[2]][[4]]
-player_info$LJ[[4]]
+player_info[[2]][[4]] # index with index
+player_info$LJ$points # index with name
 
 ```
 
@@ -114,13 +114,15 @@ Add a new named element to the end of each player's list called `height`. The he
 
 Print the `player_info` list to prove you were successful.
 ```{r}
-heights <- list(MJ = 78, LJ = 81, KB = 78, KA = 86, SO = 85)
+heights <- list(MJ = 78, LJ = 81, KB = 78, KA = 86, SO = 85) # create list of heights
 
-for (i in 1:length(player_info)){
-  player_info[[i]]$height <- heights[[i]]
+for (i in 1:length(player_info)){ # for # of lists in <player_info> lists
+   # index <player_info> each time / assign height variable to the height from list heights aquired by using same index
+  player_info[[i]]$height <- heights[[i]] 
+ 
 }
 
-print(player_info)
+print(player_info) # print the list with height variable added
 ```
 ### Part c (3 points)
 
@@ -137,9 +139,12 @@ Hint: initialize an empty list
 Note: this must still run correctly even if the values were to change or if another player were added to the list or if the player order changed.
 
 ```{r}
-points_per_game <- list()
+points_per_game <- list() # initialize list
+
+# create a function to calculate points per game and use lapply to apply to specified <player_info> variables
+
 points_per_game <- lapply(player_info, function(x) {x$points/x$games_played})
-points_per_game
+points_per_game # print
 ```
 ### Part d (1 point)
 
@@ -148,8 +153,9 @@ Use the list created in Part c and an appropriate apply function to round each v
 Store the output as a vector and print the results.
 
 ```{r}
+# use sapply to round each item in <points_per_game>
 points_vec <- sapply(points_per_game, round, 2)
-points_vec
+points_vec # print vector
 ```
 
 
@@ -171,16 +177,17 @@ ie: 91 rounds to 90; 173 rounds to 200; 1450 rounds to 1000
 Hint: use `MARGIN = 1:2` to apply the function to each value instead of only a row/col.
 
 ```{r}
-round_func <- function(x){
-  if (x >= 10 && x < 100){
-    return(round(x, -1))
-  }else if(x >= 100 && x < 1000){
-    return(round(x, -2))
-  }else{
-    return(round(x, -3))
+round_func <- function(x){ # define function and inputs
+  if (x >= 10 && x < 100){ # if x is greater than or equal to 10 and less than 100
+    return(round(x, -1)) # round to the nearest 10th
+  }else if(x >= 100 && x < 1000){ # else if x is greater than or equal to 100 and less than 1000
+    return(round(x, -2)) # round to the nearest hundred
+  }else{ # x is greater than 1000
+    return(round(x, -3)) # round to the nearest thousand
   }
 }
 
+# use apply function to apply <round_func> to each matrix entry
 apply(mat_rand, 1:2, round_func)
 
 ```
@@ -206,6 +213,7 @@ max_temps <- read_tsv("state_max_temps.tsv") |>
 Calculate the average temperature for each month across the whole data frame (using the data for all three states together).
 
 ```{r}
+# use apply to apply mean function to columns 3-14 (months)
 apply(max_temps[, 3:14], 2, mean)
 
 ```
@@ -222,6 +230,8 @@ Create three new data frames by slicing the data by state.
 No need to print any output here.
 
 ```{r}
+
+# slice <max_temps> by ($state == <insert state>), store all TRUE in new variable
 max_temps_CO <- max_temps[max_temps$state == "CO", ]
 max_temps_OH <- max_temps[max_temps$state == "OH", ]
 max_temps_VA <- max_temps[max_temps$state == "VA", ]
@@ -245,17 +255,21 @@ Example (this is NOT the answer just an example of what goes in the {}):
 Note: This code should still run successfully even if the numbers were to change.
 
 ```{r}
+# apply median function by row to <max_temps_CO, columns 3-14 (months)> using apply
 median_temps <- apply(max_temps_CO[3:14], 1, median)
 
-max_ind <- which.max(median_temps)
-min_ind <- which.min(median_temps)
+max_ind <- which.max(median_temps) # store index for max median position
+min_ind <- which.min(median_temps) # store index for min median position
 
-max_temp <- median_temps[max_ind]
-min_temp <- median_temps[min_ind]
+max_temp <- median_temps[max_ind] # store value for max median using index
+min_temp <- median_temps[min_ind] # store value for min median using index
 
-max_temp_year <- max_temps_CO$year[max_temp]
-min_temp_year <- max_temps_CO$year[min_temp]
+# store year of max median by indexing with max
+max_temp_year <- max_temps_CO$year[max_ind] 
+# store year of min median by indexing with min
+min_temp_year <- max_temps_CO$year[min_ind]
 
+# print statement using variable
 print(paste0("The maximum median annual temperature of ", max_temp, " occurred in ", max_temp_year, " and the minimum median annual temperature of ", min_temp, " occurred in ", min_temp_year, "."))
 
 ```
@@ -270,19 +284,19 @@ Example: The number 312 would return 6 (3 + 1 + 2)
 Run your function with 935068.
 
 ```{r}
-sum_num <- 0
+sum_num <- 0 # initialize sum
 
-sum_of_digits <- function(number){
-  if(number == 0){ # base case
-    return(0)
-  }else{
-    last_digit <- number %% 10
-    trunc_num <- number %/% 10
-    sum_num <- last_digit + sum_num
-    return(sum_num + sum_of_digits(trunc_num))
+sum_of_digits <- function(number){ # define function and inputs
+  if(number < 10){ # base case
+    return(number) # sum is number
+  }else{ # recursive case
+    last_digit <- number %% 10 # obtain last digit
+    trunc_num <- number %/% 10 # truncate number to exclude last digit
+    sum_num <- last_digit + sum_num # add last digit to current sum
+    return(sum_num + sum_of_digits(trunc_num)) # keep sum and run function again with truncated number
   }
 }
 
-sum_of_digits(935068)
+sum_of_digits(935068) # run function with input
 ```
 
